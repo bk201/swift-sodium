@@ -24,6 +24,27 @@ extension SecretBox {
     }
 
     /**
+     Encrypts a message with a shared secret key and nonce.
+
+     - Parameter message: The message to encrypt.
+     - Parameter secretKey: The shared secret key.
+     - Parameter nonce: The nonce to be used.
+
+     - Returns: A `Bytes` object containing the authenticated ciphertext.
+     */
+    public func seal(message: Bytes, secretKey: Key, nonce: Nonce) -> Bytes? {
+        guard secretKey.count == KeyBytes else { return nil }
+        var authenticatedCipherText = Bytes(count: message.count + MacBytes)
+        guard .SUCCESS == crypto_secretbox_easy (
+            &authenticatedCipherText,
+            message, UInt64(message.count),
+            nonce,
+            secretKey
+            ).exitCode else { return nil }
+        return authenticatedCipherText
+    }
+
+    /**
      Encrypts a message with a shared secret key.
 
      - Parameter message: The message to encrypt.
